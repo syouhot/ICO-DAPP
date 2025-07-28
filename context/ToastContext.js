@@ -89,7 +89,6 @@ export const ToastProvider = ({ children }) => {
             duration: 4000
         })
     }
-
     const updateToast = (id, state, message) => {
         toast.dismiss(id);
         switch (state) {
@@ -107,7 +106,6 @@ export const ToastProvider = ({ children }) => {
                 return showInfo(message);
         }
     }
-
     const notify = {
         start: (message = "Processing transaction...") => {
             return showProcessing(message);
