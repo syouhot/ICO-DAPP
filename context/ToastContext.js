@@ -46,7 +46,7 @@ export const ToastProvider = ({ children }) => {
         return toast.success(message, {
             style: {
                 ...TOAST_STYLE.common,
-                ...TOAST_STYLE.processing,
+                ...TOAST_STYLE.approve,
             },
             duration: 5000
         })

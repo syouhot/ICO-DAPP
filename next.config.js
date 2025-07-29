@@ -3,8 +3,11 @@ const nextConfig = {
   experimental: {
     appDir: false, // Keep this false for pages directory
     esmExternals: "loose", // This helps with ESM/CommonJS compatibility
+    // 启用 Webpack 5 的 Import Attributes 支持
+    webpackBuildWorker: true,
   },
   transpilePackages: [
+    "@base-org/account", // 显式 transpile 这个包
     "@vanilla-extract/sprinkles",
     "@rainbow-me/rainbowkit",
     "@reown/appkit",
@@ -12,6 +15,14 @@ const nextConfig = {
     "@walletconnect/universal-provider",
   ],
   webpack: (config, { isServer }) => {
+    config.module.rules.push({
+      test: /\.json$/,
+      type: 'javascript/auto',
+      use: 'json-loader',
+      resolve: {
+        fullySpecified: false, // 允许省略扩展名
+      },
+    });
     // Handle module resolution issues
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -56,6 +67,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+ 
 };
 
 module.exports = nextConfig;

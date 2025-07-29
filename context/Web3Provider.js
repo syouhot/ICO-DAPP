@@ -8,7 +8,6 @@ import TOKEN_ICO_ABI from "./ABI.json";
 import { useEthersProvider, useEthersSigner } from "../provider/hooks";
 import { config } from "../provider/wagmiConfigs"
 import { handleTransactionError, erc20Abi, generateId } from "./Utility"
-import { use } from "chai";
 
 const LINKTUN_ADDRESS = process.env.NEXT_PUBLIC_LINKTUN_ADDRESS;
 const CURRENCY = process.env.NEXT_PUBLIC_CURRENCY;
@@ -32,6 +31,7 @@ export const Web3Provider = ({ children }) => {
     const chainId = useChainId();
     const { balance } = useBalance({ config });
     const { connect, connectors } = useConnect();
+    
     const [reCall, setReCall] = useState(0);
     const [globalLoad, setGlobalLoad] = useState(false);
 
