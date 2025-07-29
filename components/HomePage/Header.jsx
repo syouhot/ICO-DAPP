@@ -215,7 +215,7 @@ const Header = ({ isDarkMode, toggleDarkMode }) => {
     {
       isHeaderSticky && <div className="h-[90px] md:h-[98px]"></div>
     }
-    <header className={`w-full transition-all duration-500 ease-out fixed top-0 left-0 z-50 w-full shadow-lg animate-slowSlideDown  
+    <header className={`w-full transition-all duration-500 ease-out fixed top-0 left-0 z-50 shadow-lg animate-slowSlideDown  
                       ${isDarkMode ? "bg-[#0e0b12/95 backdrop-blur-md bg-gary-800/50" : "bg-white/95 backdrop-blur-md border-gray-200/50"} `}
       ref={menuRef}>
 
