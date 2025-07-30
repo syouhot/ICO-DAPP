@@ -214,7 +214,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   const getTokenIcon = (token) => {
     switch (token) {
       case "POL":
-        return <img src="/polygon.png" className="w-5 h-5" alt="polygon" />;
+        return <img src="/polygon.svg" className="w-5 h-5" alt="polygon" />;
       default:
         return null;
     }
@@ -273,7 +273,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     const handleMouseMove = (e) => {
       const rect = canvas.getBoundingClientRect();
       mouseX = e.clientX - rect.left;
-      mouseY = e.clientY = rect.top;
+      mouseY = e.clientY - rect.top;
     }
     window.addEventListener("mousemove", handleMouseMove);
 
@@ -310,7 +310,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
         if (particle.z <= -focalLength) {
           particle.z = Math.random() * 1000;
           particle.x = Math.random() * canvas.width - canvas.width / 2;
-          particle.z = Math.random() * canvas.height - canvas.height / 2;
+          particle.y = Math.random() * canvas.height - canvas.height / 2;
         }
 
         const scale = focalLength / (focalLength + particle.z);
@@ -384,6 +384,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600">
                 {" "}
                 Sale
+                {" "}
               </span>
               <span className={textColor}>Stage 1</span>
             </h2>
@@ -475,15 +476,276 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                     </span>
                   </div>
                 </div>
-                  {/* progress bar */}
-
+                {/* progress bar */}
+                <div className={`w-full h-4 ${isDarkMode ? "bg-gray-800/70" : "bg-gray-200/70"} rounded-full mb-3 overflow-hideen`}>
+                  <div className={`h-full rounded-full bg-gradient-to-r ${primaryGradient} animated-progress relative`} style={{ width: `${Math.max(0.5, calculateProcessPercentage())}%` }}
+                    key={`progress-${calculateProcessPercentage()}`}>
+                    <div className="absolute top-0 left-0 w-full h-full bg-white/10 shimmer-effect"></div>
+                  </div>
+                </div>
+                {/* 进度状态 */}
+                <div className="flex justify-between text-xs mb-6 px-1">
+                  <div className={seconddaryTextColor}>
+                    Total Raised:{" "}
+                    <span className={`${textColor} font-medium`}>
+                      {" "}
+                      {parseFloat(contractInfo?.totalSold || 0) *
+                        parseFloat(PER_TOKEN_USD_PRICE || 0) > 0 ?
+                        (
+                          parseFloat(contractInfo?.totalSold || 0) *
+                          parseFloat(PER_TOKEN_USD_PRICE || 0)
+                        ).toFixed(2)
+                        : "0"}{" "}
+                      POL
+                    </span>
+                  </div>
+                  <div className={`${seconddaryTextColor} font-medium`}>
+                    <span className="text-fuchsia-500 font-semibold">
+                      {calculateProcessPercentage()}%
+                    </span>
+                    {" "}
+                    Complete
+                  </div>
+                </div>
+                {/* divider */}
+                <div className={`border-t ${isDarkMode ? "border-gray-800/50" : "border-gray-200/50"} my-5`}></div>
+                {/* 代币价格 */}
+                <div className="flex items-center justify-center space-x-3 mb-6">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-fuchsia-500/20 to-purple-600/20 flex items-center justify-center">
+                    <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-purple-600">1</span>
+                  </div>
+                  <span className={`${textColor} text-lg font-medium`}>
+                    {TOKEN_SYMBOL} = {" "}
+                  </span>
+                  <div className="px-3 py-1 rounded-lg bg-gradient-to-r from-teal-400/10 to-indigo-500/10">
+                    <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-500 to-purple-600">
+                      {PER_TOKEN_USD_PRICE} &nbsp; {CURRENCY}
+                    </span>
+                  </div>
+                </div>
+                {/* 代币选择 */}
+                <div className="flex space-x-2 mb-4">
+                  <button onClick={() => handleTokenSelection("POL")} className={getTokenButtonStyle("POL")}>
+                    <img src="/polygon.svg" alt="POL" className={`mr-2 w-4 h-4 ${selectedToken === "POL" ? "filter brightness-200" : ""}`} />
+                    Pay With {CURRENCY}
+                  </button>
+                </div>
+                {/* 余额 */}
+                <div className={`text-sm ${seconddaryTextColor} text-center mb-6 py-2 px-4 rounded-lg ${isDarkMode ? "bg-gray-800/30" : "bg-gray-100/70"}`}>
+                  <span className="mr-2">{selectedToken} Balance:</span>
+                  <span className={`${textColor} font-medium`}>
+                    { getCurrentBalance()}
+                  </span>
+                  <span className="ml-1">
+                    { selectedToken}
+                  </span>
+                </div>
+                {/* 输入金额 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                  <div className="">
+                    <label htmlFor="" className={`block ${seconddaryTextColor} text-xs mb-1 font-medium`}>
+                      Pay With { selectedToken}
+                    </label>
+                    <div className="relative">
+                      <input type="text" value={inputAmount} onChange={(e) => handleAmountChange(e.target.value)}
+                        className={`w-full ${inputBg} rounded-lg border px-4 py-3 ${textColor} focus:ring-1 focus:ring-teal-400 focus:border-teal-400 transition-all duration-200`} />
+                      <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2`}>
+                        <span className={`text-xs ${seconddaryTextColor}`}>
+                          { selectedToken}
+                        </span>
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center">
+                          { getTokenIcon(selectedToken)}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="" className={`block ${seconddaryTextColor} text-xs mb-1 font-medium`}>
+                      Receive { TOKEN_SYMBOL}
+                    </label>
+                    <div className="relative">
+                      <input type="text" value={tokenAmount} readOnly className={`w-full ${inputBg} rounded-lg border px-4 py-3 ${textColor} `} />
+                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                        <span className={`text-xs ${seconddaryTextColor}`}>
+                          { TOKEN_SYMBOL}
+                        </span>
+                        <div className="w-6 h-6 flex items-center justify-center">
+                          <img src="/logo.png" alt={ TOKEN_SYMBOL} className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {/* 按钮 */}
+                {isConnected ? (
+                  <>
+                    <button onClick={executePurchase} disabled={!hasSufficientBalance}
+                      className={`w-full ${hasSufficientBalance ? "bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700" : isDarkMode ? "bg-gray-700/70 cursor-not-allowed" : "bg-gray-300 cursor-not-allowed"} text-white rounded-lg py-4 mb-4 flex items-center justify-center transition-all duration-300 font-medium shadow-lg ${hasSufficientBalance ? "hover:shadow-purple-500/20 hover:scale-[1.01]" : ""}`}>
+                      {getButtonMessage()}
+                    </button>
+                    <button onClick={() => addtokenToMetamask()} className={`w-full hidden lg:flex bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-lg py-4 mb-4 flex items-center justify-center transition-all duration-300 font-medium shadow-lg`}>
+                      <img src="/logo.png" alt={TOKEN_SYMBOL} className="w-5 h-5" />
+                      {" "}
+                      &nbsp;
+                      <span>Add Token to MetaMask</span>
+                    </button>
+                  </>
+                ) : (
+                    <CustomConnectButton childStyle="w-full mb-4 py-4 rounded-lg flex items-center justify-center gap-2 font-medium"/>
+                )}
+                {/* 帮助链接 */}
+                <div className="flex flex-col space-y-2 text-xs">
+                  <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800/30" : "bg-gray-100/70"} mb-1`}>
+                    <div className="flex items-center space-x-3 mb-2">
+                      <AiOutlineQuestionCircle className={`text-lg text-[#7765f3]`} />
+                      <h4 className={ `font-medium ${textColor}`}>Need Help?</h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                        <span className="mr-1">·</span>
+                        How to Buy
+                      </a>
+                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                        <span className="mr-1">·</span>
+                        Wallet Connection
+                      </a>
+                      <a href="#TokenInfo" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                        <span className="mr-1">·</span>
+                        Token Info
+                      </a>
+                      <a href="#FAQ" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                        <span className="mr-1">·</span>
+                        FAQ
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 滚动到头部按钮 */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button onClick={() => window.scrollTo({ top: 0, behavior: "SMOOTH" })}
+          className={`w-10 h-10 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x hover:from-fuchsia-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center transition-all duration-300 hover:scale-110`} aria-label="Scroll to top">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          </button>
+      </div>
+      {/* 动画 */}
+      <style jsx>
+        {`
+          @keyframes pulse-slow {
+            0%,
+            100% {
+              opacity:0.8;
+              transform:scale(1);
+            }
+            50% {
+              opacity:1;
+              transform:scale(1.02);
+            }
+          }
+          .animate-pulse-slow {
+            animation: pulse-slow 3s infinite;
+          }
+          .animated-progress {
+            animation:progress 1.5s ease-out;
+          }
+          @keyframes progress {
+            0% {
+              width: 0;
+            }
+            100% {
+              width: ${Math.max(0.5,calculateProcessPercentage())}%; 
+            }
+          }
+          .grid-pattern {
+            background-image: ${isDarkMode ? "linear-gradient(rgba(56,189,248,0.06) 1px, transparent 1px),linear-gradient(90deg,rgba(56,189,258,0.06) 1px,transparent 1px)" : "linear-gradient(rgba(79,70,229,0.08) 1px, transparent 1px),linear-gradient(90deg,rgba(79,70,229,0.08) 1px,transparent 1px)"};
+            background-size: 35px 35px;
+            animation:pulse-grid 8s ease-in-out infinite alternate;
+          }
+          @keyframes pulse-grid {
+            0%{
+              opacity:0.7;
+              background-size:35px 35px;
+            }
+            100%{
+              opacity:1;
+              background-sze:36px 36px;
+            }
+          }
+
+          .light-rays {
+            overflow:hidden;
+            opacity:${isDarkMode?"0.4":"0.3"};
+          }
+          .light-ray{
+            position:absolute;
+            width:200%;
+            height:100%;
+            background: linear-gradient(90deg,transparent 0%,${isDarkMode ? "rgba(119,101,243,0.05) 45%,rgba(146,10,1,243,0.1) 50%,rgba(119,101,243,0.05) 55%" :
+            "rgba(119,101,243,0.03) 45%,rgba(146,101,243,0.07) 50%,rgba(119,101,243,0.03) 55%"},
+            transparent 100%
+            );
+            transform:rotate(45deg);
+            top:-50%;
+            left:-50%;
+          }
+          .ray1 {
+              animation:moveRay 15s linear infinite;
+          }
+              
+          .ray2 {
+              animation:moveRay 25s linear 5s infinite;
+          }
+          .ray3 {
+              animation:moveRay 25 linear 10s infinite;
+          }
+          @keyframes moveRay {
+              0%{
+                transform:rotate(45deg) translateX(-100%);
+              }
+              100%{
+                transform:rotate(45deg) translateX(100%);
+              }
+          }
+
+          .shimmer-effect{
+              animation:shimmer 2s infinite linear;
+              background:linear-gradient(
+                to right,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.2) 50%,
+                rgba(255,255,255,0) 100%
+              );
+              background-size:200% 100%;
+          }
+          
+          @keyframes shimmer{
+              0%{
+                background-position:-200% 0;
+              }
+              100%{
+                background-position:200% 0;
+              }
+          }
+        `}
+      </style>
     </div>
-      )
+  )
 }
 
-      export default HeroSection;
+export default HeroSection;
