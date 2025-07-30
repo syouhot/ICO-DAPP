@@ -10,6 +10,10 @@ import { CustomConnectButton } from "../index"
 import { useWeb3 } from "../../context/Web3Provider"
 import { ethers } from "ethers"
 
+
+import { useEthersProvider } from "../../provider/hooks";
+import TOKEN_ICO_ABI from "../../context/ABI.json";
+
 const TOKEN_NAME = process.env.NEXT_PUBLIC_TOKEN_NAME;
 const TOKEN_SYMBOL = process.env.NEXT_PUBLIC_TOKEN_SYMBOL;
 const TOKEN_SUPPLY = process.env.NEXT_PUBLIC_TOKEN_SUPPLY;
@@ -18,6 +22,7 @@ const NEXT_PER_TOKEN_USD_PRICE =
   process.env.NEXT_PUBLIC_NEXT_PER_TOKEN_USD_PRICE;
 const CURRENCY = process.env.NEXT_PUBLIC_CURRENCY;
 const BLOCKCHAIN = process.env.NEXT_PUBLIC_BLOCKCHAIN;
+const LINKTUN_ADDRESS = process.env.NEXT_PUBLIC_LINKTUN_ADDRESS;
 
 const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   const {
@@ -27,6 +32,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     tokenBalance,
     buyToken,
     addtokenToMetamask,
+    setSaleToken,
   } = useWeb3();
 
   const [selectedToken, setSelectedToken] = useState("POL");
@@ -39,6 +45,23 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   const canvasRef = useRef(null);
   const particlesRef = useRef([]);
   const animationRef = useRef(null);
+
+  const setToken = () => {
+    setSaleToken(LINKTUN_ADDRESS)
+  }
+  const provider = useEthersProvider();
+  const getInfo = async () => {
+    const result = await provider.getCode("0x5FbDB2315678afecb367f032d93F642f64180aa3")
+    console.log(result, 33333);
+
+    // const readonlyContract = new ethers.Contract(
+    //   "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    //   TOKEN_ICO_ABI.abi,
+    //   provider
+    // )
+    // const info = await readonlyContract.getContractInfo();
+    // console.log(info);
+  }
 
   const calculateProcessPercentage = () => {
     if (!contractInfo.totalSold || !contractInfo.tbcBalance) {
@@ -371,6 +394,11 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
               <p className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x">
                 Preasle Now Live
               </p>
+              <button onClick={() => setToken()}>SET TOKEN</button>
+              <div>
+
+              <button onClick={() => getInfo()}>GET TOKEN</button>
+              </div>
             </div>
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold ${textColor} mb-4`}>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x">
@@ -534,43 +562,43 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                 <div className={`text-sm ${seconddaryTextColor} text-center mb-6 py-2 px-4 rounded-lg ${isDarkMode ? "bg-gray-800/30" : "bg-gray-100/70"}`}>
                   <span className="mr-2">{selectedToken} Balance:</span>
                   <span className={`${textColor} font-medium`}>
-                    { getCurrentBalance()}
+                    {getCurrentBalance()}
                   </span>
                   <span className="ml-1">
-                    { selectedToken}
+                    {selectedToken}
                   </span>
                 </div>
                 {/* 输入金额 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
                   <div className="">
                     <label htmlFor="" className={`block ${seconddaryTextColor} text-xs mb-1 font-medium`}>
-                      Pay With { selectedToken}
+                      Pay With {selectedToken}
                     </label>
                     <div className="relative">
                       <input type="text" value={inputAmount} onChange={(e) => handleAmountChange(e.target.value)}
                         className={`w-full ${inputBg} rounded-lg border px-4 py-3 ${textColor} focus:ring-1 focus:ring-teal-400 focus:border-teal-400 transition-all duration-200`} />
                       <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2`}>
                         <span className={`text-xs ${seconddaryTextColor}`}>
-                          { selectedToken}
+                          {selectedToken}
                         </span>
                         <div className="w-6 h-6 rounded-full flex items-center justify-center">
-                          { getTokenIcon(selectedToken)}
+                          {getTokenIcon(selectedToken)}
                         </div>
                       </div>
                     </div>
                   </div>
                   <div>
                     <label htmlFor="" className={`block ${seconddaryTextColor} text-xs mb-1 font-medium`}>
-                      Receive { TOKEN_SYMBOL}
+                      Receive {TOKEN_SYMBOL}
                     </label>
                     <div className="relative">
                       <input type="text" value={tokenAmount} readOnly className={`w-full ${inputBg} rounded-lg border px-4 py-3 ${textColor} `} />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
                         <span className={`text-xs ${seconddaryTextColor}`}>
-                          { TOKEN_SYMBOL}
+                          {TOKEN_SYMBOL}
                         </span>
                         <div className="w-6 h-6 flex items-center justify-center">
-                          <img src="/logo.png" alt={ TOKEN_SYMBOL} className="w-5 h-5" />
+                          <img src="/logo.png" alt={TOKEN_SYMBOL} className="w-5 h-5" />
                         </div>
                       </div>
                     </div>
@@ -591,29 +619,29 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                     </button>
                   </>
                 ) : (
-                    <CustomConnectButton childStyle="w-full mb-4 py-4 rounded-lg flex items-center justify-center gap-2 font-medium"/>
+                  <CustomConnectButton childStyle="w-full mb-4 py-4 rounded-lg flex items-center justify-center gap-2 font-medium" />
                 )}
                 {/* 帮助链接 */}
                 <div className="flex flex-col space-y-2 text-xs">
                   <div className={`p-3 rounded-lg ${isDarkMode ? "bg-gray-800/30" : "bg-gray-100/70"} mb-1`}>
                     <div className="flex items-center space-x-3 mb-2">
                       <AiOutlineQuestionCircle className={`text-lg text-[#7765f3]`} />
-                      <h4 className={ `font-medium ${textColor}`}>Need Help?</h4>
+                      <h4 className={`font-medium ${textColor}`}>Need Help?</h4>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
-                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20`}>
                         <span className="mr-1">·</span>
                         How to Buy
                       </a>
-                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                      <a href={`/dashboard/`} className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20`}>
                         <span className="mr-1">·</span>
                         Wallet Connection
                       </a>
-                      <a href="#TokenInfo" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                      <a href="#TokenInfo" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20`}>
                         <span className="mr-1">·</span>
                         Token Info
                       </a>
-                      <a href="#FAQ" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20` }>
+                      <a href="#FAQ" className={`${seconddaryTextColor} hover:${textColor} flex items-center text-xs transition-colors duration-200 px-2 py-1 rounded hover:bg-gray-700/20`}>
                         <span className="mr-1">·</span>
                         FAQ
                       </a>
@@ -642,7 +670,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
               clipRule="evenodd"
             />
           </svg>
-          </button>
+        </button>
       </div>
       {/* 动画 */}
       <style jsx>
@@ -669,7 +697,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
               width: 0;
             }
             100% {
-              width: ${Math.max(0.5,calculateProcessPercentage())}%; 
+              width: ${Math.max(0.5, calculateProcessPercentage())}%; 
             }
           }
           .grid-pattern {
@@ -690,7 +718,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
 
           .light-rays {
             overflow:hidden;
-            opacity:${isDarkMode?"0.4":"0.3"};
+            opacity:${isDarkMode ? "0.4" : "0.3"};
           }
           .light-ray{
             position:absolute;

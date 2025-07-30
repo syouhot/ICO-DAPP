@@ -37,3 +37,12 @@ main().then(() => {
     console.error(error);
     process.exit(1)
 })
+
+
+
+// sepolia
+
+// NEXT_PUBLIC_TOKEN_ICO_ADDRESS
+// 0x460591A9Eb377a530a5a1567bB1528b73bf6a6c5
+// NEXT_PUBLIC_LINKTUM_ADDRESS
+// 0x8D8622b85446845B1cFB58Cdb8dAc2746d9Fb1df

@@ -24,6 +24,9 @@ module.exports = {
     }
   },
   networks: {
+    hardhat: {
+      chainId: 31337,
+    },
     polygon: {
       url: process.env.NETWORK_RPC_URL || process.env.NETWORK_RPC_URL,
       accounts:

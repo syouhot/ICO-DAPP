@@ -17,6 +17,7 @@ const TOKEN_LOGO = process.env.NEXT_PUBLIC_TOKEN_LOGO;
 const DOMAIN_URL = process.env.NEXT_PUBLIC_NEXT_DOMAIN_URL;
 const PER_TOKEN_USD_PRICE = process.env.NEXT_PUBLIC_PER_TOKEN_USD_PRICE;
 const TokenICOAbi = TOKEN_ICO_ABI.abi;
+const CHAIN_ID = process.env.NEXT_PUBLIC_CHAIN_ID;
 
 const Web3Context = createContext();
 
@@ -26,7 +27,7 @@ const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL;
 const fallbackProvider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
 export const Web3Provider = ({ children }) => {
-    const { notifty } = useToast();
+    const { notify } = useToast();
     const { address, isConnected } = useAccount();
     const chainId = useChainId();
     const { balance } = useBalance({ config });
@@ -34,9 +35,10 @@ export const Web3Provider = ({ children }) => {
     
     const [reCall, setReCall] = useState(0);
     const [globalLoad, setGlobalLoad] = useState(false);
-
+    
     const provider = useEthersProvider();
     const signer = useEthersSigner();
+
     const fallbackProvider = new ethers.providers.JsonRpcProvider(RPC_URL);
 
     const [contract, setContract] = useState(null);
@@ -47,11 +49,11 @@ export const Web3Provider = ({ children }) => {
         tbcAddress: null,
         tbcBalance: "0",
         ethPrice: "0",
-        tokenSold: "0",
+        totalSold: "0",
     })
 
     const [tokenBalance, setTokenBalance] = useState({
-        usertabBalance: "0",
+        usertbcBalance: "0",
         contracttbcBalance: null,
         totalSupply: null,
         userEthBalance: null,
@@ -70,6 +72,8 @@ export const Web3Provider = ({ children }) => {
                         TokenICOAbi,
                         signer
                     )
+                    console.log(contractInstance, 3333);
+                    
                     setContract(contractInstance);
                 } catch (error) {
                     console.error("Error initializing contract:", error);
@@ -77,7 +81,7 @@ export const Web3Provider = ({ children }) => {
 
                 }
             }
-        }
+        };
         initContract();
     }, [provider, signer])
 
@@ -85,15 +89,24 @@ export const Web3Provider = ({ children }) => {
     useEffect(() => {
         const fetchContractInfo = async () => {
             setGlobalLoad(true);
+            console.log("CONTRACT_ADDRESS",CONTRACT_ADDRESS);
+            console.log("provider", provider);
+            console.log("TokenICOAbi", TokenICOAbi);
+            
             if (contract) {
                 try {
                     const currentProvider = provider || fallbackProvider;
+                    const  result= await currentProvider.getCode(CONTRACT_ADDRESS)
+                    console.log(result,33333);
+                    
                     const readonlyContract = new ethers.Contract(
                         CONTRACT_ADDRESS,
                         TokenICOAbi,
                         currentProvider
                     )
                     const info = await readonlyContract.getContractInfo();
+                    console.log(info);
+                    
                     const tokenDecimals = parseInt(info.tokenDecimals) || 18;
                     setContractInfo({
                         tbcAddress: info.tokenAddress,
@@ -123,7 +136,7 @@ export const Web3Provider = ({ children }) => {
                         ])
                         setTokenBalance({
                             ...prev,
-                            usertabBalance: ethers.utils.formatUnits(userTokenBalance, tokenDecimals),
+                            usertbcBalance: ethers.utils.formatUnits(userTokenBalance, tokenDecimals),
                             contracttbcBalance: ethers.utils.formatUnits(contractEthBalance, 18),
                             totalSupply: ethers.utils.formatUnits(totalSupply, tokenDecimals),
                             userEthBalance: ethers.utils.formatUnits(userEthBalance),
@@ -142,13 +155,13 @@ export const Web3Provider = ({ children }) => {
 
     const buyToken = async (ethAmount) => {
         if (!contract || !address) return null;
-        const toastId = notifty.start(`Buying ${TOKEN_SYMBOL} with ${CURRENCY}...`);
+        const toastId = notify.start(`Buying ${TOKEN_SYMBOL} with ${CURRENCY}...`);
         try {
             const ethValue = ethers.utils.parseEther(ethAmount);
             const tx = await contract.buyToken({
                 value: ethValue
             });
-            notifty.update(toastId, "Processing", `Waiting for confirmation...`);
+            notify.update(toastId, "Processing", `Waiting for confirmation...`);
             const receipt = await tx.wait();
             if (receipt.status === 1) {
                 const tokenPrice = PER_TOKEN_USD_PRICE;
@@ -165,7 +178,7 @@ export const Web3Provider = ({ children }) => {
                 };
                 saveTransactionLocalStorage(txDetails);
                 setReCall((prev) => prev + 1);
-                notifty.complete(toastId, `Successfully purchased ${TOKEN_SYMBOL} tokens`);
+                notify.complete(toastId, `Successfully purchased ${TOKEN_SYMBOL} tokens`);
 
                 return receipt;
 
@@ -173,12 +186,12 @@ export const Web3Provider = ({ children }) => {
         } catch (error) {
             const { message, errorMessage, code } = handleTransactionError(error, "buying Tokens");
             if (errorCode === "ACTION_REJECTED") {
-                notifty.reject(toastId, `Transaction rejected by user`);
+                notify.reject(toastId, `Transaction rejected by user`);
                 return null;
             }
 
             console.error(errorMessage);
-            notifty.fail(
+            notify.fail(
                 toastId, "Transaction failed,please try again with sufficient gas",
             )
             return null;
@@ -202,26 +215,26 @@ export const Web3Provider = ({ children }) => {
 
     const updateTokenPrice = async (newPrice) => {
         if (!contract || !address) return null;
-        const toastId = notifty.start(`Updating token price ...`);
+        const toastId = notify.start(`Updating token price ...`);
         try {
             const parsedPrice = ethers.utils.parseEther(newPrice);
             const tx = await contract.updatetokenPrice(parsedPrice);
-            notifty.update(toastId, "Processing", `Confirming price update...`);
+            notify.update(toastId, "Processing", `Confirming price update...`);
             const receipt = await tx.wait();
             if (receipt.status === 1) {
                 setReCall((prev) => prev + 1);
-                notifty.complete(toastId, `Token price update to ${newPrice} ${CURRENCY}`);
+                notify.complete(toastId, `Token price update to ${newPrice} ${CURRENCY}`);
                 return receipt;
             }
         } catch (error) {
             const { message, errorMessage, code } = handleTransactionError(error, "updating token price");
             if (errorCode === "ACTION_REJECTED") {
-                notifty.reject(toastId, `Transaction rejected by user`);
+                notify.reject(toastId, `Transaction rejected by user`);
                 return null;
             }
 
             console.error(errorMessage);
-            notifty.fail(
+            notify.fail(
                 toastId, "price update failed,please check your premissions and try again",
             )
             return null;
@@ -230,25 +243,25 @@ export const Web3Provider = ({ children }) => {
 
     const setSaleToken = async (tokenAddress) => {
         if (!contract || !address) return null;
-        const toastId = notifty.start(`Setting token price ...`);
+        const toastId = notify.start(`Setting token price ...`);
         try {
             const tx = await contract.setSaleToken(tokenAddress);
-            notifty.update(toastId, "Processing", `Confirming token update...`);
+            notify.update(toastId, "Processing", `Confirming token update...`);
             const receipt = await tx.wait();
             if (receipt.status === 1) {
                 setReCall((prev) => prev + 1);
-                notifty.complete(toastId, `Sale token updated successfully`);
+                notify.complete(toastId, `Sale token updated successfully`);
                 return receipt;
             }
         } catch (error) {
             const { message, errorMessage, code } = handleTransactionError(error, "setting sale token");
             if (errorCode === "ACTION_REJECTED") {
-                notifty.reject(toastId, `Transaction rejected by user`);
+                notify.reject(toastId, `Transaction rejected by user`);
                 return null;
             }
 
             console.error(errorMessage);
-            notifty.fail(
+            notify.fail(
                 toastId, "Failed to set sale token,please check the address",
             )
             return null;
@@ -256,25 +269,25 @@ export const Web3Provider = ({ children }) => {
     }
     const withdrawAllTokens = async () => {
         if (!contract || !address) return null;
-        const toastId = notifty.start(`withdraw tokens ...`);
+        const toastId = notify.start(`withdraw tokens ...`);
         try {
             const tx = await contract.withdrawAllTokens();
-            notifty.update(toastId, "Processing", `Confirming withdraw...`);
+            notify.update(toastId, "Processing", `Confirming withdraw...`);
             const receipt = await tx.wait();
             if (receipt.status === 1) {
                 setReCall((prev) => prev + 1);
-                notifty.complete(toastId, `All tokens withdraw successfully`);
+                notify.complete(toastId, `All tokens withdraw successfully`);
                 return receipt;
             }
         } catch (error) {
             const { message, errorMessage, code } = handleTransactionError(error, "Withdrawing token");
             if (errorCode === "ACTION_REJECTED") {
-                notifty.reject(toastId, `Transaction rejected by user`);
+                notify.reject(toastId, `Transaction rejected by user`);
                 return null;
             }
 
             console.error(errorMessage);
-            notifty.fail(
+            notify.fail(
                 toastId, "Failed to withdraw token,please try again",
             )
             return null;
@@ -282,25 +295,25 @@ export const Web3Provider = ({ children }) => {
     }
     const rescueToken = async (tokenAddress) => {
         if (!contract || !address) return null;
-        const toastId = notifty.start(`resucing tokens ...`);
+        const toastId = notify.start(`resucing tokens ...`);
         try {
             const tx = await contract.rescueToken(tokenAddress);
-            notifty.update(toastId, "Processing", `Confirming recue operation...`);
+            notify.update(toastId, "Processing", `Confirming recue operation...`);
             const receipt = await tx.wait();
             if (receipt.status === 1) {
                 setReCall((prev) => prev + 1);
-                notifty.complete(toastId, `tokens rescued successfully`);
+                notify.complete(toastId, `tokens rescued successfully`);
                 return receipt;
             }
         } catch (error) {
             const { message, errorMessage, code } = handleTransactionError(error, "rescuing token");
             if (errorCode === "ACTION_REJECTED") {
-                notifty.reject(toastId, `Transaction rejected by user`);
+                notify.reject(toastId, `Transaction rejected by user`);
                 return null;
             }
 
             console.error(errorMessage);
-            notifty.fail(
+            notify.fail(
                 toastId, "Failed to rescue tokens,please try again",
             )
             return null;
@@ -330,7 +343,7 @@ export const Web3Provider = ({ children }) => {
     }
 
     const addtokenToMetaMask = async () => {
-        const toastId = notifty.start(`Adding ${TOKEN_SYMBOL} to Metamask...`);
+        const toastId = notify.start(`Adding ${TOKEN_SYMBOL} to Metamask...`);
         try {
             const wasAdded = await window.ethereum.request({
                 method: 'wallet_watchAsset',
@@ -346,15 +359,15 @@ export const Web3Provider = ({ children }) => {
             })
 
             if (wasAdded) {
-                notifty.complete(toastId, `successfully added ${TOKEN_SYMBOL} to Metamask`);
+                notify.complete(toastId, `successfully added ${TOKEN_SYMBOL} to Metamask`);
             }else{
-                notifty.complete(toastId, `failed to add ${TOKEN_SYMBOL} to Metamask`);
+                notify.complete(toastId, `failed to add ${TOKEN_SYMBOL} to Metamask`);
             }
         } catch (error) {
             console.error(error);
             const {message:errorMessage,code:errorCode} = handleTransactionError(error,"token adding error");
             
-            notifty.fail(toastId, `transaction failed,${errorMessage.message==="undefined"?"not supported":errorMessage.message}`);
+            notify.fail(toastId, `transaction failed,${errorMessage.message==="undefined"?"not supported":errorMessage.message}`);
             
         }
     }

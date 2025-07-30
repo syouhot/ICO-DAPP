@@ -8,6 +8,7 @@ export const handleTransactionError = (
     }
     let errorMessage = "Transaction Failed";
     let errorCode = "UNKNOWN_ERROR";
+    let message =""
     const code = 
     error?.code || 
     (error?.error && error.error.code)||
@@ -29,7 +30,7 @@ export const handleTransactionError = (
         errorMessage = error.reason;
         errorCode = "CONTRACT_ERROR";
     }else if(error.message){
-        const message = error.message;
+        message = error.message;
         if(message.includes("gas required exceeds allowance")){
             errorMessage = "Gas required exceeds your ETH balance";
             errorCode = "INSUFFICIENT_FUNDS";
