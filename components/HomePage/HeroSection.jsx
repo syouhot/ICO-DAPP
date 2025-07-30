@@ -10,7 +10,6 @@ import { CustomConnectButton } from "../index"
 import { useWeb3 } from "../../context/Web3Provider"
 import { ethers } from "ethers"
 
-
 import { useEthersProvider } from "../../provider/hooks";
 import TOKEN_ICO_ABI from "../../context/ABI.json";
 
@@ -35,7 +34,8 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     setSaleToken,
   } = useWeb3();
 
-  const [selectedToken, setSelectedToken] = useState("POL");
+
+  const [selectedToken, setSelectedToken] = useState("ETH");
   const [inputAmount, setInputAmount] = useState("0");
   const [tokenAmount, setTokenAmount] = useState("0");
   const [hasSufficientBalance, setHasSufficientBalance] = useState(false);
@@ -89,7 +89,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
           ethPrice = contractInfo.ethPrice;
         } else {
           ethPrice = ethers.utils.parseEther(contractInfo.ethPrice.toString());
-        }
+        }        
       } else {
         ethPrice = ethers.utils.parseEther(defaultEthPrice);
       }
@@ -127,7 +127,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     const inputASmountFloat = parseFloat(inputAmount) || 0;
     let hasBalance = false;
     switch (selectedToken) {
-      case "POL":
+      case "ETH":
         const ethBalance = parseFloat(tokenBalance?.userEthBalance || "0");
         hasBalance = ethBalance >= inputASmountFloat && inputASmountFloat > 0;
         break;
@@ -144,9 +144,11 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     let calculatedAmount;
     try {
       switch (token) {
-        case "POL":
-          const amountInWei = ethers.utils.parseEther(amount.toString());
-          const tokenPerEth = ethers.utils.parseEther(prices.ethPrice.toString());
+        case "ETH":
+          const amountInWei = ethers.utils.parseEther(amount);
+          const tokenPerEth = ethers.utils.formatEther(prices.ethPrice.toString());
+          console.log(tokenPerEth, "tokenPerEth");
+          
           calculatedAmount = parseFloat(amount) / parseFloat(tokenPerEth);
           break;
         default:
@@ -167,7 +169,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   //处理代币选择变化
   const handleTokenSelection = (token) => {
     setSelectedToken(token);
-    setInputAmount(calculateTokenAmount(inputAmount, token));
+    setTokenAmount(calculateTokenAmount(inputAmount, token));
   }
 
   //处理购买代币
@@ -181,7 +183,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
       return;
     }
     if (!hasSufficientBalance) {
-      if (parseFloat(tokenBalance?.fsxBalance || "0") < 20) {
+      if (parseFloat(tokenBalance?.tbcBalance || "0") < 20) {
         alert("Insufficient balance to buy tokens. Please try again later.");
       } else {
         alert(`Insufficient ${selectedToken} balance to buy tokens.`);
@@ -193,7 +195,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
       let tx;
       console.log(`buying with ${inputAmount} ${selectedToken}...`);
       switch (selectedToken) {
-        case "POL":
+        case "ETH":
           tx = await buyToken(inputAmount);
           break;
         default:
@@ -208,6 +210,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     } catch (error) {
       console.error(`Error buying with ${selectedToken}:`, error);
       alert("Transaction failed.Please try again");
+      
     }
   };
 
@@ -215,7 +218,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   const getCurrentBalance = () => {
     if (!tokenBalance) return "0";
     switch (selectedToken) {
-      case "POL":
+      case "ETH":
         return tokenBalance?.userEthBalance || "0";
       default:
         return "0";
@@ -236,7 +239,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
   //获取代币图标
   const getTokenIcon = (token) => {
     switch (token) {
-      case "POL":
+      case "ETH":
         return <img src="/polygon.svg" className="w-5 h-5" alt="polygon" />;
       default:
         return null;
@@ -261,7 +264,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     if (isSelected) {
       let selectedColorClass;
       switch (token) {
-        case "POL":
+        case "ETH":
           selectedColorClass = "bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700";
           break;
         default:
@@ -524,7 +527,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                           parseFloat(PER_TOKEN_USD_PRICE || 0)
                         ).toFixed(2)
                         : "0"}{" "}
-                      POL
+                      ETH
                     </span>
                   </div>
                   <div className={`${seconddaryTextColor} font-medium`}>
@@ -553,8 +556,8 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                 </div>
                 {/* 代币选择 */}
                 <div className="flex space-x-2 mb-4">
-                  <button onClick={() => handleTokenSelection("POL")} className={getTokenButtonStyle("POL")}>
-                    <img src="/polygon.svg" alt="POL" className={`mr-2 w-4 h-4 ${selectedToken === "POL" ? "filter brightness-200" : ""}`} />
+                  <button onClick={() => handleTokenSelection("ETH")} className={getTokenButtonStyle("ETH")}>
+                    <img src="/polygon.svg" alt="ETH" className={`mr-2 w-4 h-4 ${selectedToken === "ETH" ? "filter brightness-200" : ""}`} />
                     Pay With {CURRENCY}
                   </button>
                 </div>
@@ -656,7 +659,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
 
       {/* 滚动到头部按钮 */}
       <div className="fixed bottom-6 right-6 z-50">
-        <button onClick={() => window.scrollTo({ top: 0, behavior: "SMOOTH" })}
+        <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className={`w-10 h-10 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x hover:from-fuchsia-600 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/20 flex items-center justify-center transition-all duration-300 hover:scale-110`} aria-label="Scroll to top">
           <svg
             xmlns="http://www.w3.org/2000/svg"

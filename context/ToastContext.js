@@ -65,7 +65,7 @@ export const ToastProvider = ({ children }) => {
         return toast.error(message, {
             style: {
                 ...TOAST_STYLE.common,
-                ...TOAST_STYLE.complete,
+                ...TOAST_STYLE.reject,
             },
             duration: 5000
         })
@@ -84,12 +84,13 @@ export const ToastProvider = ({ children }) => {
         return toast.error(message, {
             style: {
                 ...TOAST_STYLE.common,
-                ...TOAST_STYLE.failed,
+                ...TOAST_STYLE.info,
             },
             duration: 4000
         })
     }
     const updateToast = (id, state, message) => {
+        if(!id) return;
         toast.dismiss(id);
         switch (state) {
             case "processing":
@@ -105,6 +106,10 @@ export const ToastProvider = ({ children }) => {
             case "info":
                 return showInfo(message);
         }
+    }
+    const closeToast = (id)=>{
+        if(!id) return;
+        toast.dismiss(id);
     }
     const notify = {
         start: (message = "Processing transaction...") => {
@@ -134,6 +139,7 @@ export const ToastProvider = ({ children }) => {
         showFailed,
         showInfo,
         updateToast,
+        closeToast,
         notify,
         toast,
     }}>
