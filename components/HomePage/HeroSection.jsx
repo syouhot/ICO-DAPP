@@ -30,7 +30,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
     contractInfo,
     tokenBalance,
     buyToken,
-    addtokenToMetamask,
+    addtokenToMetaMask,
     setSaleToken,
   } = useWeb3();
 
@@ -202,7 +202,6 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
           alert("Please select a token to purchase with");
           return;
       }
-      console.log(tx);
       console.log(`Successfully purchased ${tokenAmount} ${TOKEN_SYMBOL} tokens`);
       //重制输入
       setInputAmount("0");
@@ -397,11 +396,10 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
               <p className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x">
                 Preasle Now Live
               </p>
-              <button onClick={() => setToken()}>SET TOKEN</button>
+              {/* <button onClick={() => setToken()}>SET TOKEN</button>
               <div>
-
               <button onClick={() => getInfo()}>GET TOKEN</button>
-              </div>
+              </div> */}
             </div>
             <h1 className={`text-4xl md:text-5xl lg:text-6xl font-bold ${textColor} mb-4`}>
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 to-purple-600 animate-gradient-x">
@@ -614,7 +612,7 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
                       className={`w-full ${hasSufficientBalance ? "bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700" : isDarkMode ? "bg-gray-700/70 cursor-not-allowed" : "bg-gray-300 cursor-not-allowed"} text-white rounded-lg py-4 mb-4 flex items-center justify-center transition-all duration-300 font-medium shadow-lg ${hasSufficientBalance ? "hover:shadow-purple-500/20 hover:scale-[1.01]" : ""}`}>
                       {getButtonMessage()}
                     </button>
-                    <button onClick={() => addtokenToMetamask()} className={`w-full hidden lg:flex bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-lg py-4 mb-4 flex items-center justify-center transition-all duration-300 font-medium shadow-lg`}>
+                    <button onClick={() => addtokenToMetaMask()} className={`w-full hidden lg:flex bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-lg py-4 mb-4 flex items-center justify-center transition-all duration-300 font-medium shadow-lg`}>
                       <img src="/logo.png" alt={TOKEN_SYMBOL} className="w-5 h-5" />
                       {" "}
                       &nbsp;
@@ -740,10 +738,10 @@ const HeroSection = ({ isDarkMode, setIsReferralPopupOpen }) => {
           }
               
           .ray2 {
-              animation:moveRay 25s linear 5s infinite;
+              animation:moveRay 20s linear 5s infinite;
           }
           .ray3 {
-              animation:moveRay 25 linear 10s infinite;
+              animation:moveRay 25s linear 10s infinite;
           }
           @keyframes moveRay {
               0%{

@@ -73,8 +73,6 @@ export const Web3Provider = ({ children }) => {
                         TokenICOAbi,
                         signer
                     )
-                    console.log(contractInstance, 3333);
-
                     setContract(contractInstance);
                 } catch (error) {
                     console.error("Error initializing contract:", error);
@@ -90,14 +88,9 @@ export const Web3Provider = ({ children }) => {
     useEffect(() => {
         const fetchContractInfo = async () => {
             setGlobalLoad(true);
-            console.log("CONTRACT_ADDRESS", CONTRACT_ADDRESS);
-            console.log("provider", provider);
-
             if (contract) {
                 try {
                     const currentProvider = provider || fallbackProvider;
-                    const result = await currentProvider.getCode(CONTRACT_ADDRESS)
-                    console.log(result, 33333);
 
                     const readonlyContract = new ethers.Contract(
                         CONTRACT_ADDRESS,
@@ -105,8 +98,6 @@ export const Web3Provider = ({ children }) => {
                         currentProvider
                     )
                     const info = await readonlyContract.getContractInfo();
-                    console.log(info);
-
                     const tokenDecimals = parseInt(info.tokenDecimals) || 18;
                     setContractInfo({
                         tbcAddress: info.tokenAddress,
@@ -258,7 +249,6 @@ export const Web3Provider = ({ children }) => {
                 return null;
             }
 
-            console.error(errorMessage);
             notify.fail(
                 toastId, "Failed to set sale token,please check the address",
             )
@@ -284,7 +274,6 @@ export const Web3Provider = ({ children }) => {
                 return null;
             }
 
-            console.error(errorMessage);
             notify.fail(
                 toastId, "Failed to withdraw token,please try again",
             )
@@ -310,7 +299,6 @@ export const Web3Provider = ({ children }) => {
                 return null;
             }
 
-            console.error(errorMessage);
             notify.fail(
                 toastId, "Failed to rescue tokens,please try again",
             )

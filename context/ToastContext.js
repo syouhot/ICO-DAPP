@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
+import React, { createContext, useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const ToastContext = createContext();
